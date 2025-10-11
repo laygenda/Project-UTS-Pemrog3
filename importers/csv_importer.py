@@ -1,26 +1,45 @@
 """
 matriks/importers/csv_importer.py: Modul tunggal untuk mengimpor data dari CSV.
-(Implementasi fitur import CSV wajib).
 """
 import csv
 import os
+import sys
 
 class CSVImporter:
     """Kelas yang bertanggung jawab untuk memuat data CSV ke format list bersarang float."""
     
     @staticmethod
-    def import_raw_data_from_csv(filepath, column_names, has_header=True):
+    def import_raw_data_from_csv(filepath, column_names, has_header=True, is_relative_to_main=False):
         """
         Memuat data yang diperlukan dari CSV dan mengonversinya menjadi list bersarang float.
+
+        Args:
+            filepath (str): Nama file CSV (e.g., 'data.csv').
+            column_names (list): List nama kolom yang akan diambil.
+            has_header (bool): Apakah file memiliki header.
+            is_relative_to_main (bool): Jika True, path relatif terhadap direktori yang 
+                                        menjalankan main.py (yaitu /matriks/).
         """
+        
+        if is_relative_to_main:
+            # Jika dijalankan dari main.py di folder /matriks/, path CSV ada di sana.
+            absolute_filepath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", filepath))
+        else:
+            # Jika dijalankan dari Flask (root project), path CSV ada di root.
+            # Kita asumsikan Flask dijalankan dari /Project-UTS-PM3/, dan CSV ada di /Project-UTS-PM3/
+            absolute_filepath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", filepath))
+
         data_matrix = []
         
-        # Tentukan lokasi file CSV (asumsi berada di root project)
-        # Kami menggunakan path relatif untuk kompatibilitas yang lebih baik
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        absolute_filepath = os.path.join(script_dir, "..", "..", filepath)
-
         try:
+            # Cek di mana file tersebut benar-benar ada
+            if not os.path.exists(absolute_filepath):
+                 # Jika tidak ditemukan di path yang dihitung, coba di current working directory
+                 absolute_filepath = filepath
+                 if not os.path.exists(absolute_filepath):
+                     raise FileNotFoundError(f"File data tidak ditemukan di: {filepath} atau {absolute_filepath}")
+
+
             with open(absolute_filepath, mode='r', newline='', encoding='utf-8') as file:
                 reader = csv.reader(file)
                 
@@ -28,7 +47,11 @@ class CSVImporter:
                 if has_header:
                     header = next(reader)
                     # Menggunakan strip() untuk menghilangkan spasi/newline pada nama kolom
-                    column_indices = [header.index(name.strip()) for name in column_names]
+                    # Cek apakah semua kolom yang diminta ada
+                    if not all(name.strip() in [h.strip() for h in header] for name in column_names):
+                        raise ValueError(f"Kolom yang diminta {column_names} tidak ditemukan di header: {header}")
+                        
+                    column_indices = [[h.strip() for h in header].index(name.strip()) for name in column_names]
                 else:
                     column_indices = list(range(len(column_names)))
 
@@ -37,18 +60,18 @@ class CSVImporter:
                     processed_row = []
                     for index in column_indices:
                         try:
-                            # Mengonversi nilai menjadi float
                             processed_row.append(float(row[index].strip()))
                         except (ValueError, IndexError):
-                            # Jika data tidak valid atau hilang, kita isi 0.0
+                            # Jika data tidak valid atau hilang
                             processed_row.append(0.0) 
                             
                     if processed_row:
                         data_matrix.append(processed_row)
                         
-        except FileNotFoundError:
-            raise FileNotFoundError(f"File CSV tidak ditemukan: {absolute_filepath}. Pastikan file ada di root folder.")
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"File CSV tidak ditemukan: {e}")
         except ValueError as e:
-            raise ValueError(f"Error dalam parsing CSV (mungkin nama kolom salah atau data non-numerik): {e}")
+            raise ValueError(f"Error dalam parsing CSV: {e}")
 
         return data_matrix
+

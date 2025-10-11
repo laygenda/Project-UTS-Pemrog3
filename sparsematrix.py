@@ -4,7 +4,8 @@ matriks/sparsematrix.py: Implementasi Matriks Jarang (Sparse Matrix) yang efisie
 Kelas ini mewarisi dari Matrix untuk membuktikan Liskov Substitution Principle (LSP)
 dan Open/Closed Principle (OCP).
 """
-from .matrix import Matrix
+from matriks.matrix import Matrix
+from collections import defaultdict
 
 class SparseMatrix(Matrix):
     """
@@ -54,9 +55,29 @@ class SparseMatrix(Matrix):
 
         # Mengonversi hasil transpose ke Dense lalu ke SparseMatrix baru
         # Ini adalah cara sederhana untuk memastikan konsistensi dimensi
-        transposed_dense_data = super().transpose().get_data()
 
-        return SparseMatrix(transposed_dense_data)
+       # transposed_dense_data = super().transpose().get_data()
+       # return SparseMatrix(transposed_dense_data)
+
+       # ini menyebabkan bug kecil, yang menyebabkan eror saat mencoba mendemontrasikan 
+       # sparsematrix transpose di main.py
+
+       # hal itu karena Memanggil super().transpose() yang mengembalikan matrx penuh
+#	yang sudah benar transposenya, kemudian program mencoba untuk mengembalikan
+ #      sparsematrix dengan data dense tersebut, yang menimbulkan masalah saat
+  #     mengkonstruksi objek sparse yang baru, terutama terkait dimensi baru (Kolom A
+#	menjadi baris B
+
+       # di bawah ini adalah perbaikan kode yang menyebabkan bug
+       # Membuat SparseMatrix baru dengan data ter-transpose
+        new_matrix = SparseMatrix([[0]])
+        new_matrix._sparse_data = new_sparse_data
+    
+        # Menukar ukuran baris dan kolom
+        new_matrix.row_count = self.column_count
+        new_matrix.column_count = self.row_count
+
+        return new_matrix
 
     def __str__(self):
         """Representasi string untuk output yang mudah dibaca."""
