@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriks ML Project - {% block title %}{% endblock title %}</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+    <header>
+        {% include '_nav.html' %}
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">{% block header %}{% endblock header %}</h1>
+    </div>
+
+    <main>
+        {% block content %}
+            {% endblock content %}
+    </main>
+
+    <footer class="container">
+        <p>&copy; 2024 Project Pemrograman 3 | Matriks & Machine Learning</p>
+    </footer>
+
+</body>
+</html>

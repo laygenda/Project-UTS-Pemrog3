@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Hasil Prediksi & Visualisasi{% endblock title %}
+
+{% block header %}
+    Hasil Regresi Linear & Interpretasi
+{% endblock header %}
+
+{% block content %}
+<div class="container">
+    
+    <form method="GET" action="{{ url_for('pages.analyze') }}">
+        <p>Data akan diproses dari <code>{{ CSV_FILENAME }}</code> untuk menghitung Regresi Linear.</p>
+        <button type="submit" class="btn btn-primary">Jalankan Analisis Matriks & ML</button>
+    </form>
+    
+    {% if error_message %}
+        <div class="alert alert-danger">
+            <strong>Terjadi Kesalahan!</strong> {{ error_message }}
+        </div>
+    {% endif %}
+
+    {% if analysis_success %}
+    
+    <div class="result-section">
+        <h3>Summary Prediksi Regresi</h3>
+        
+        {% if weights %}
+            {% set b0 = weights.intercept|round(4) %}
+            {% set b1 = weights.slope|round(4) %}
+            
+            <p><strong>Variabel X (Feature):</strong> {{ feature_name }}</p>
+            <p><strong>Variabel Y (Target):</strong> {{ target_name }}</p>
+
+            <h4>Persamaan Prediksi:</h4>
+            <p class="model-equation">
+                Y = <strong>{{ b0 }}</strong> + (<strong>{{ b1 }}</strong> &times; X)
+            </p>
+        {% else %}
+            <p>Model gagal menghitung bobot prediksi.</p>
+        {% endif %}
+
+        <div id="chart-container" style="height: 500px;">
+            <canvas id="regressionChart"></canvas> 
+        </div>
+        
+    </div>
+    
+    <div class="result-section">
+        <h3>Interpretasi Hasil</h3>
+        <p>{{ interpretation }}</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/chart_logic.js') }}"></script>
+    <script>
+        const rawChartData = {{ chart_data | tojson }};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (rawChartData && rawChartData.X_data.length > 0) {
+                // drawRegressionChart() adalah fungsi dari chart_logic.js
+                drawRegressionChart(rawChartData);
+            }
+        });
+    </script>
+    
+    {% endif %}
+</div>
+{% endblock content %}
