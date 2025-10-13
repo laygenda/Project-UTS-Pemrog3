@@ -92,6 +92,7 @@ def analyze():
         return render_template(
             "pages/analysis.html",
             title="Hasil Analisis",
+            header_title="Hasil Regresi Linear & Interpretasi",
             feature_name=FEATURE_COLUMN,
             target_name=TARGET_COLUMN,
             weights=weights,
