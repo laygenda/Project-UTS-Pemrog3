@@ -23,6 +23,13 @@ def home():
     """Halaman Beranda."""
     return render_template("pages/analysis.html", title="Beranda")
 
+# RUTE BARU: Menangani Halaman Tentang Proyek
+@bp.route("/about")
+def about(): 
+    """Halaman Tentang: Menampilkan informasi mengenai proyek, teknologi, dan tim."""
+    # KOREKSI: Memastikan variabel 'title' dikirimkan ke template.
+    return render_template("pages/about.html", title="Tentang Proyek")
+
 @bp.route("/analysis", methods=["GET", "POST"])
 def analyze():
     """Halaman yang menjalankan alur kerja Import, Regresi, dan Interpretasi."""

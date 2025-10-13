@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block header %}
+    Tentang Proyek
+{% endblock header %}
+
+{% block content %}
+<h2>Project UTS Pemrograman 3</h2>
+<hr>
+
+<p>Proyek ini mengintegrasikan konsep **Pemrograman Berorientasi Objek (OOP)**, **Clean Code (SOLID)**, dan **Machine Learning (Regresi Linear)** ke dalam aplikasi web sederhana menggunakan *framework* **Flask**.</p>
+
+<h3>Fungsionalitas Inti:</h3>
+<ul>
+    <li>**Import CSV & Matrix Operation:** Mengimpor data dari CSV dan mengolahnya menggunakan implementasi Matriks kustom (termasuk Transpose dan Inverse).</li>
+    <li>**Algoritma Regresi Linear:** Menerapkan Persamaan Normal ($W = (X^T X)^{-1} X^T Y$) untuk melatih model.</li>
+    <li>**Visualisasi Data:** Menampilkan hasil prediksi dan garis regresi menggunakan Chart.js.</li>
+</ul>
+
+<h3>Teknologi & Prinsip yang Diterapkan:</h3>
+<ul>
+    <li>**Clean Code:** Penerapan prinsip **SOLID** (terutama SRP dan OCP) dalam arsitektur modul `matriks/`.</li>
+    <li>**Containerization:** Proyek siap di-*deploy* menggunakan **Docker**.</li>
+    <li>**Kolaborasi:** Menggunakan **Git** untuk kolaborasi tim.</li>
+</ul>
+
+<p>Dibuat oleh Lay Genda Surya Putra (3324600059) dan Kadek Savita Dyutianaya (3324600033).</p>
+{% endblock content %}
