@@ -16,12 +16,18 @@ bp = Blueprint("pages", __name__, url_prefix='/')
 # Nama Kolom yang sudah divalidasi
 FEATURE_COLUMN = "Berat_Kendaraan_kg" 
 TARGET_COLUMN = "Konsumsi_Ltr_100km"
-CSV_FILENAME = 'konsumsi_bahan_bakar_kendaraan.csv'
+CSV_FILENAME = "konsumsi_bahan_bakar_kendaraan.csv"
 
 @bp.route("/")
 def home():
-    """Halaman Beranda."""
-    return render_template("pages/analysis.html", title="Beranda")
+    """Halaman Beranda. Hanya me-render tampilan awal sebelum analisis."""
+    # KOREKSI: Meneruskan CSV_FILENAME dan analysis_success=False untuk tampilan awal
+    return render_template(
+        "pages/analysis.html", 
+        title="Beranda",
+        CSV_FILENAME=CSV_FILENAME,
+        analysis_success=False # Ini penting untuk memastikan konten hasil tidak tampil
+    )
 
 # RUTE BARU: Menangani Halaman Tentang Proyek
 @bp.route("/about")

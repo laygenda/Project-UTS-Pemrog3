@@ -3,23 +3,29 @@
 {% block title %}Hasil Prediksi & Visualisasi{% endblock title %}
 
 {% block header %}
-    Hasil Regresi Linear & Interpretasi
+    Hasil Regresi Linear & Interpretasi
 {% endblock header %}
 
 {% block content %}
 <div class="container">
     
-    <form method="GET" action="{{ url_for('pages.analyze') }}">
-        <p>Data akan diproses dari <code>Dataset Konsumsi Bahan Bakar</code> untuk menghitung Regresi Linear.</p>
-        <button type="submit" class="btn btn-primary">Jalankan Analisis Matriks & ML</button>
-    </form>
-    
-    {% if error_message %}
-        <div class="alert alert-danger">
-            <strong>Terjadi Kesalahan!</strong> {{ error_message }}
-        </div>
-    {% endif %}
+    {% if not analysis_success %}
+    <div class="result-section">
+        <h3>Mulai Analisis Data</h3>
+        
+        <form method="GET" action="{{ url_for('pages.analyze') }}">
+            <p>Data akan diproses dari <code>{{ CSV_FILENAME }}</code> untuk menghitung Regresi Linear.</p>
+            <button type="submit" class="btn btn-primary">Jalankan Analisis Matriks & ML</button>
+        </form>
 
+        {% if error_message %}
+            <div class="alert alert-danger">
+                <strong>Terjadi Kesalahan!</strong> {{ error_message }}
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
     {% if analysis_success %}
     
     <div class="result-section">
