@@ -1,40 +1,60 @@
-# flask_app/pages/routes.py (VERSI FINAL FOKUS REGRESI)
+# flask_app/pages/routes.py (VERSI FINAL + FIX HOME VARS)
 
 from flask import Blueprint, render_template, request, current_app, redirect, url_for
 import os
-import pandas as pd 
-from io import StringIO 
-
+import math # Diperlukan untuk sqrt()
 # Import Modul Low-Level Anda (DIP)
 from matriks.matrix import Matrix 
 from matriks.importers.csv_importer import CSVImporter
 from matriks.regression.linear_regression_model import LinearRegressionModel
-# from matriks.exporters.json_exporter import export_to_json # Tidak digunakan lagi
+
+# ====================================================================
+# FUNGSI BANTU: Metrik Evaluasi (Dipertahankan di routes.py sesuai SRP)
+# ====================================================================
+
+def calculate_r_squared(y_actual: list, y_predicted: list) -> float:
+    """Menghitung R-squared (Koefisien Determinasi) secara manual."""
+    ss_total = sum([(y - sum(y_actual)/len(y_actual))**2 for y in y_actual])
+    ss_residual = sum([(y_actual[i] - y_predicted[i])**2 for i in range(len(y_actual))])
+    
+    if ss_total == 0:
+        return 0.0
+    return 1 - (ss_residual / ss_total)
+
+def calculate_rmse(y_actual: list, y_predicted: list) -> float:
+    """Menghitung Root Mean Squared Error (RMSE) secara manual."""
+    n = len(y_actual)
+    squared_errors = sum([(y_actual[i] - y_predicted[i])**2 for i in range(n)])
+    return math.sqrt(squared_errors / n)
+
+# ====================================================================
+# RUTE FLASK UTAMA
+# ====================================================================
 
 bp = Blueprint("pages", __name__, url_prefix='/')
 
 # Nama Kolom yang sudah divalidasi
 FEATURE_COLUMN = "Berat_Kendaraan_kg" 
 TARGET_COLUMN = "Konsumsi_Ltr_100km"
-CSV_FILENAME = "konsumsi_bahan_bakar_kendaraan.csv"
+CSV_FILENAME = 'konsumsi_bahan_bakar_kendaraan.csv'
+
+@bp.route("/about")
+def about(): 
+    return render_template("pages/about.html", title="Tentang Proyek")
 
 @bp.route("/")
 def home():
     """Halaman Beranda. Hanya me-render tampilan awal sebelum analisis."""
-    # KOREKSI: Meneruskan CSV_FILENAME dan analysis_success=False untuk tampilan awal
+    # KOREKSI: Tambahkan FEATURE_COLUMN dan TARGET_COLUMN ke konteks template home()
     return render_template(
         "pages/analysis.html", 
         title="Beranda",
+        header_title=None,
         CSV_FILENAME=CSV_FILENAME,
-        analysis_success=False # Ini penting untuk memastikan konten hasil tidak tampil
+        feature_name=FEATURE_COLUMN, # FIX: Tambahkan variabel ini
+        target_name=TARGET_COLUMN,   # FIX: Tambahkan variabel ini
+        analysis_success=False
     )
-
-# RUTE BARU: Menangani Halaman Tentang Proyek
-@bp.route("/about")
-def about(): 
-    """Halaman Tentang: Menampilkan informasi mengenai proyek, teknologi, dan tim."""
-    # KOREKSI: Memastikan variabel 'title' dikirimkan ke template.
-    return render_template("pages/about.html", title="Tentang Proyek")
 
 @bp.route("/analysis", methods=["GET", "POST"])
 def analyze():
@@ -50,33 +70,33 @@ def analyze():
         )
         
         # 2. Persiapan untuk Regresi
-        X_data = [[row[0]] for row in raw_data_list] # Feature: Nx1
-        y_data = [[row[1]] for row in raw_data_list] # Target: Nx1
+        X_data = [[row[0]] for row in raw_data_list]
+        y_data_flat = [row[1] for row in raw_data_list]
+        target_matrix = Matrix([[y] for y in y_data_flat])
         
         feature_matrix = Matrix(X_data)
-        target_matrix = Matrix(y_data)
         
-        # 3. Latih Model Regresi (Internal menggunakan Inverse & Transpose)
+        # 3. Latih Model Regresi
         model = LinearRegressionModel()
         model.fit(feature_matrix, target_matrix)
         weights = model.get_weights() 
         
-        # 4. Prediksi untuk Visualisasi
-        X_vis = [row[0] for row in X_data] # List fitur X
+        # 4. Prediksi dan Metrik
+        X_vis = [row[0] for row in X_data] 
         y_pred_vis = [model.predict(x) for x in X_vis]
+
+        r_squared = calculate_r_squared(y_data_flat, y_pred_vis)
+        rmse = calculate_rmse(y_data_flat, y_pred_vis)
         
-        # 5. Interpretasi Hasil (BARU)
+        # 5. Interpretasi Hasil
         if weights:
             b0 = weights['intercept']
             b1 = weights['slope']
             
             interpretation = (
                 f"Model Linear Regression yang dihasilkan adalah: Y = {b0:.4f} + {b1:.4f} * X. "
-                f"Ini berarti: "
-                f"a) Setiap kenaikan 1 kg pada **Berat Kendaraan** ({FEATURE_COLUMN}), "
-                f"diprediksi akan menaikkan **Konsumsi BBM** ({TARGET_COLUMN}) sebesar {b1:.4f} Ltr/100km. "
-                f"b) Nilai Intercept ({b0:.4f}) adalah konsumsi BBM prediksi jika berat kendaraan adalah 0 kg. "
-                f"Karena bobot kendaraan tidak pernah 0, nilai ini berfungsi sebagai titik awal matematis."
+                f"Koefisien Determinasi (R²) sebesar {r_squared:.4f} menunjukkan {r_squared*100:.2f}% variasi dalam Konsumsi BBM dapat dijelaskan oleh Berat Kendaraan. "
+                f"RMSE sebesar {rmse:.4f} adalah rata-rata deviasi prediksi dari nilai aktual."
             )
         else:
             interpretation = "Model gagal menghitung bobot."
@@ -84,7 +104,7 @@ def analyze():
         # 6. Siapkan data untuk Chart.js
         chart_data = {
             'X_data': X_vis, 
-            'y_data_actual': [row[0] for row in y_data], 
+            'y_data_actual': y_data_flat,
             'y_data_predicted': y_pred_vis
         }
         
@@ -92,18 +112,27 @@ def analyze():
         return render_template(
             "pages/analysis.html",
             title="Hasil Analisis",
-            header_title="Hasil Regresi Linear & Interpretasi",
-            feature_name=FEATURE_COLUMN,
-            target_name=TARGET_COLUMN,
+            header_title="Dashboard Analisis Matriks & ML",
             weights=weights,
-            interpretation=interpretation, # <-- KIRIM INTERPRETASI BARU
+            r_squared=r_squared,
+            rmse=rmse,
+            interpretation=interpretation,
             chart_data=chart_data,
-            analysis_success=True
+            analysis_success=True,
+            CSV_FILENAME=CSV_FILENAME,
+            feature_name=FEATURE_COLUMN, # Variabel sudah tersedia di sini
+            target_name=TARGET_COLUMN    # Variabel sudah tersedia di sini
         )
 
-    except FileNotFoundError as e:
-        return render_template("pages/analysis.html", title="Error", error_message=f"File CSV Error: {e.args[0]}", analysis_success=False)
-    except ValueError as e:
-        return render_template("pages/analysis.html", title="Error", error_message=f"Kesalahan Validasi Data: {e}", analysis_success=False)
     except Exception as e:
-        return render_template("pages/analysis.html", title="Error", error_message=f"Kesalahan Analisis: Terjadi error pada aljabar matriks atau model: {e}", analysis_success=False)
+        # Pastikan error handling juga memiliki variabel ini
+        return render_template(
+            "pages/analysis.html", 
+            title="Error", 
+            header_title="Peringatan Error Analisis", 
+            error_message=f"Kesalahan Analisis: {e.__class__.__name__}: {e}", 
+            analysis_success=False, 
+            CSV_FILENAME=CSV_FILENAME,
+            feature_name=FEATURE_COLUMN, 
+            target_name=TARGET_COLUMN
+        )
