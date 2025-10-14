@@ -1,28 +1,60 @@
 {% extends "base.html" %}
-
-{% block header %}
-    Tentang Proyek
-{% endblock header %}
+{% block title %}Tentang Proyek{% endblock %}
 
 {% block content %}
-<h2>Project UTS Pemrograman 3</h2>
-<hr>
+<section class="max-w-5xl mx-auto mt-12 bg-white rounded-2xl shadow-xl overflow-hidden">
+  <div class="relative bg-gradient-to-r from-primary to-secondary px-8 py-8">
+    <!-- Overlay lembut untuk kontras -->
+    <div class="absolute inset-0 bg-black/10"></div>
 
-<p>Proyek ini mengintegrasikan konsep **Pemrograman Berorientasi Objek (OOP)**, **Clean Code (SOLID)**, dan **Machine Learning (Regresi Linear)** ke dalam aplikasi web sederhana menggunakan *framework* **Flask**.</p>
+    <!-- Teks utama -->
+    <div class="relative z-10 text-center">
+      <h2 class="text-4xl font-extrabold text-white tracking-wide drop-shadow-md">
+        Tentang Proyek
+      </h2>
+      <p class="mt-2 text-white text-lg max-w-3xl mx-auto leading-relaxed">
+        Menjelajahi konsep Matriks dan Machine Learning melalui aplikasi web interaktif.
+      </p>
+    </div>
+  </div>
 
-<h3>Fungsionalitas Inti:</h3>
-<ul>
-    <li>**Import CSV & Matrix Operation:** Mengimpor data dari CSV dan mengolahnya menggunakan implementasi Matriks kustom (termasuk Transpose dan Inverse).</li>
-    <li>**Algoritma Regresi Linear:** Menerapkan Persamaan Normal ($W = (X^T X)^{-1} X^T Y$) untuk melatih model.</li>
-    <li>**Visualisasi Data:** Menampilkan hasil prediksi dan garis regresi menggunakan Chart.js.</li>
-</ul>
+  <div class="p-8 space-y-6">
+    <p class="text-gray-700 leading-relaxed">
+      Website ini dikembangkan sebagai bagian dari mata kuliah 
+      <span class="font-semibold text-primary">Pemrograman 3</span>. Tujuannya adalah membantu mahasiswa memahami
+      konsep <span class="font-semibold text-secondary">Matriks</span> dan penerapannya dalam
+      <span class="font-semibold text-secondary">Machine Learning</span> melalui visualisasi interaktif dan perhitungan otomatis.
+    </p>
 
-<h3>Teknologi & Prinsip yang Diterapkan:</h3>
-<ul>
-    <li>**Clean Code:** Penerapan prinsip **SOLID** (terutama SRP dan OCP) dalam arsitektur modul `matriks/`.</li>
-    <li>**Containerization:** Proyek siap di-*deploy* menggunakan **Docker**.</li>
-    <li>**Kolaborasi:** Menggunakan **Git** untuk kolaborasi tim.</li>
-</ul>
+    <p class="text-gray-700 leading-relaxed">
+      Aplikasi ini menggunakan <span class="font-semibold text-primary">dataset CSV</span> sebagai sumber data 
+      untuk operasi matriks, regresi linear, dan analisis pembelajaran mesin berbasis <em>Normal Equation</em>.
+    </p>
 
-<p>Dibuat oleh Lay Genda Surya Putra (3324600059) dan Kadek Savita Dyutianaya (3324600033).</p>
-{% endblock content %}
+    <div class="bg-card-bg rounded-xl p-6 border border-yellow-200 shadow-sm">
+      <h3 class="text-xl font-semibold text-primary mb-3">Fungsionalitas Utama</h3>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li><strong>Import CSV & Operasi Matriks:</strong> Mengimpor data dan mengolah dengan metode Transpose & Invers.</li>
+        <li><strong>Algoritma Regresi Linear:</strong> Menerapkan Persamaan Normal <code class="bg-gray-100 px-1 rounded">(XᵀX)⁻¹XᵀY</code>.</li>
+        <li><strong>Visualisasi Data:</strong> Menampilkan garis regresi dan hasil prediksi dengan Chart.js.</li>
+      </ul>
+    </div>
+
+    <div class="bg-card-bg rounded-xl p-6 border border-yellow-200 shadow-sm">
+      <h3 class="text-xl font-semibold text-primary mb-3">Teknologi & Prinsip</h3>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li><strong>Clean Code:</strong> Prinsip <strong>SOLID</strong> diterapkan dalam arsitektur modul <code>matriks/</code>.</li>
+        <li><strong>Containerization:</strong> Proyek siap dijalankan di <strong>Docker</strong>.</li>
+        <li><strong>Kolaborasi:</strong> Menggunakan <strong>Git</strong> untuk kerja tim dan manajemen versi.</li>
+      </ul>
+    </div>
+
+    <div class="pt-6 border-t text-gray-600 text-center italic">
+      Dibuat oleh 
+      <span class="font-semibold text-primary">Lay Genda Surya Putra (3324600059)</span> 
+      & 
+      <span class="font-semibold text-secondary">Kadek Savita Dyutianaya (3324600033)</span>.
+    </div>
+  </div>
+</section>
+{% endblock %}
