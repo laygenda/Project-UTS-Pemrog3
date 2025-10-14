@@ -1,83 +1,71 @@
 {% extends 'base.html' %}
-
 {% block title %}Hasil Prediksi & Visualisasi{% endblock title %}
 
 {% block content %}
 
-    {% if not analysis_success %}
-    <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto mt-10">
-        <h3 class="text-xl font-semibold text-text-dark mb-4">Mulai Analisis Data</h3>
-        
-        <form method="GET" action="{{ url_for('pages.analyze') }}" class="space-y-4">
-            <p class="text-gray-700">Data akan diproses dari <code class="bg-gray-100 p-1 rounded font-mono">{{ CSV_FILENAME }}</code> untuk menghitung Regresi Linear.</p>
-            <button type="submit" class="w-full bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded-lg transition duration-300">
-                Jalankan Analisis Matriks & ML
-            </button>
-        </form>
+{% if not analysis_success %}
+<div class="bg-white/90 backdrop-blur-lg p-8 rounded-2xl shadow-lg max-w-xl mx-auto mt-10 text-center">
+  <h3 class="text-2xl font-semibold text-primary mb-4">Mulai Analisis Data</h3>
+  <p class="text-gray-700 mb-6">
+    Data akan diproses dari <code class="bg-gray-100 px-2 py-1 rounded font-mono">{{ CSV_FILENAME }}</code> untuk menghitung Regresi Linear.
+  </p>
 
-        {% if error_message %}
-            <div class="mt-4 p-3 bg-red-100 text-red-700 border border-red-400 rounded">
-                <strong>Terjadi Kesalahan!</strong> {{ error_message }}
-            </div>
-        {% endif %}
+  <form method="GET" action="{{ url_for('pages.analyze') }}">
+    <button type="submit"
+      class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-4 rounded-lg shadow hover:scale-105 transition duration-300">
+      Jalankan Analisis Matriks & ML
+    </button>
+  </form>
+
+  {% if error_message %}
+  <div class="mt-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
+    <strong>Terjadi Kesalahan!</strong> {{ error_message }}
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if analysis_success %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 mb-8">
+  {% set metrics = [
+    {'label': 'INTERCEPT (b₀)', 'value': weights.intercept|round(4), 'color': 'primary'},
+    {'label': 'SLOPE (b₁)', 'value': weights.slope|round(4), 'color': 'secondary'},
+    {'label': 'R-SQUARED (R²)', 'value': r_squared|round(4), 'color': 'green-600'},
+    {'label': 'RMSE', 'value': rmse|round(4), 'color': 'red-600'}
+  ] %}
+
+  {% for m in metrics %}
+  <div class="bg-white rounded-xl shadow-lg border-t-4 border-{{ m.color }} p-5 text-center">
+    <h4 class="text-sm font-semibold text-gray-600 mb-2">{{ m.label }}</h4>
+    <p class="text-3xl font-extrabold text-{{ m.color }}">{{ m.value }}</p>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="flex flex-col lg:flex-row gap-8 mt-8">
+  <div class="bg-white p-6 rounded-2xl shadow-2xl flex-1">
+    <h3 class="text-xl font-bold mb-4 text-primary">📈 Visualisasi Prediksi</h3>
+    <canvas id="regressionChart" class="w-full h-80"></canvas>
+  </div>
+
+  <div class="bg-white p-6 rounded-2xl shadow-2xl flex-1">
+    <h3 class="text-xl font-bold mb-4 text-secondary">🧠 Interpretasi Hasil</h3>
+    <p class="text-gray-800 mb-4">{{ interpretation }}</p>
+    <div class="border-t pt-3 text-sm text-gray-600 space-y-1">
+      <p><strong>Sumber Data:</strong> <code>{{ CSV_FILENAME }}</code></p>
+      <p><strong>Fitur (X):</strong> {{ feature_name }}</p>
+      <p><strong>Target (Y):</strong> {{ target_name }}</p>
     </div>
-    {% endif %}
-    
-    {% if analysis_success %}
-    
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8 mb-6">
-        
-        <div class="bg-card-bg p-4 rounded-xl shadow-md border-t-4 border-primary text-center">
-            <h4 class="text-sm font-semibold text-gray-600">INTERCEPT (b₀)</h4>
-            <p class="text-2xl font-extrabold text-primary mt-1">{{ weights.intercept|round(4) }}</p>
-        </div>
-        
-        <div class="bg-card-bg p-4 rounded-xl shadow-md border-t-4 border-secondary text-center">
-            <h4 class="text-sm font-semibold text-gray-600">SLOPE (b₁)</h4>
-            <p class="text-2xl font-extrabold text-secondary mt-1">{{ weights.slope|round(4) }}</p>
-        </div>
-        
-        <div class="bg-card-bg p-4 rounded-xl shadow-md border-t-4 border-green-500 text-center">
-            <h4 class="text-sm font-semibold text-gray-600">R-SQUARED (R²)</h4>
-            <p class="text-2xl font-extrabold text-green-600 mt-1">{{ r_squared|round(4) }}</p>
-        </div>
-        
-        <div class="bg-card-bg p-4 rounded-xl shadow-md border-t-4 border-red-500 text-center">
-            <h4 class="text-sm font-semibold text-gray-600">RMSE</h4>
-            <p class="text-2xl font-extrabold text-red-600 mt-1">{{ rmse|round(4) }}</p>
-        </div>
-    </div>
-    
-    <div class="flex flex-col lg:flex-row gap-6 mt-6">
-        
-        <div class="bg-white p-6 rounded-xl shadow-2xl flex-1 lg:w-3/5">
-            <h3 class="text-xl font-semibold mb-4">Visualisasi Prediksi</h3>
-            <div id="chart-container" style="height: 450px;">
-                <canvas id="regressionChart"></canvas> 
-            </div>
-        </div>
+  </div>
+</div>
 
-        <div class="bg-white p-6 rounded-xl shadow-2xl flex-1 lg:w-2/5">
-            <h3 class="text-xl font-semibold mb-4">Interpretasi Hasil</h3>
-            <p class="text-gray-800">{{ interpretation }}</p>
-            <hr class="my-4">
-            <p class="text-sm text-gray-600"><strong>Sumber Data:</strong> <code>{{ CSV_FILENAME }}</code></p>
-            <p class="text-sm text-gray-600"><strong>Fitur (X):</strong> {{ feature_name }}</p>
-            <p class="text-sm text-gray-600"><strong>Target (Y):</strong> {{ target_name }}</p>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="{{ url_for('static', filename='js/chart_logic.js') }}"></script>
-    <script>
-        const rawChartData = {{ chart_data | tojson }};
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (rawChartData && rawChartData.X_data.length > 0) {
-                drawRegressionChart(rawChartData);
-            }
-        });
-    </script>
-    
-    {% endif %}
-{% endblock content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/chart_logic.js') }}"></script>
+<script>
+  const rawChartData = {{ chart_data | tojson }};
+  document.addEventListener('DOMContentLoaded', () => {
+    if (rawChartData && rawChartData.X_data.length > 0) drawRegressionChart(rawChartData);
+  });
+</script>
+{% endif %}
+{% endblock %}

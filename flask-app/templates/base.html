@@ -1,51 +1,62 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matriks ML Project - {% block title %}{% endblock title %}</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': '#4F46E5',        // Biru Indigo (aksi)
-                        'secondary': '#F97316',      // Oranye (hangat)
-                        'background': '#FEF3C7',     // Kuning Pucat/Krem (hangat)
-                        'card-bg': '#FFFBEB',        // Putih Creamy
-                        'text-dark': '#1F2937',      // Abu-abu gelap
-                    }
-                }
-            }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matriks ML Project - {% block title %}{% endblock title %}</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4F46E5',     // Indigo elegan
+            secondary: '#F97316',   // Oranye hangat
+            light: '#FDFCFB',       // Putih lembut
+            bg: '#FFFBEA',          // Krem hangat
+            textdark: '#1F2937',    // Abu gelap
+          },
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+          },
         }
-    </script>
+      }
+    }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-background text-text-dark min-h-screen">
-    <header class="bg-primary shadow-lg sticky top-0 z-50">
-        {% include '_nav.html' %}
-    </header>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {% if header_title %}
-            <h1 class="page-title text-3xl font-bold pt-8 pb-4 text-primary">{{ header_title }}</h1>
-        {% endif %}
+<body class="font-sans bg-bg text-textdark min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="bg-primary text-white shadow-md sticky top-0 z-50">
+    {% include '_nav.html' %}
+  </header>
+
+  <!-- Header Title -->
+  {% if header_title %}
+  <section class="text-center py-10 bg-gradient-to-r from-primary to-secondary text-white shadow-md">
+    <h1 class="text-3xl md:text-4xl font-bold tracking-wide">{{ header_title }}</h1>
+  </section>
+  {% endif %}
+
+  <!-- Content -->
+  <main class="flex-grow">
+    <div class="max-w-6xl mx-auto px-4 py-10">
+      {% block content %}{% endblock content %}
     </div>
+  </main>
 
-    <main>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12"> 
-            {% block content %}
-            {% endblock content %}
-        </div>
-    </main>
-
-    <footer class="bg-text-dark text-white p-4 mt-8">
-        <div class="max-w-7xl mx-auto text-center">
-            <p>&copy; 2025 Project Pemrograman 3 | Matriks & Machine Learning</p>
-        </div>
-    </footer>
+  <!-- Footer -->
+  <footer class="bg-primary text-white py-4 mt-10">
+    <div class="text-center text-sm">
+      &copy; 2025 Project Pemrograman 3 | Matriks & Machine Learning
+    </div>
+  </footer>
 
 </body>
 </html>

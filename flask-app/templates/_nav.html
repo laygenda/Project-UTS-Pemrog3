@@ -1,7 +1,37 @@
 <nav class="max-w-7xl mx-auto py-4">
-    <ul class="flex space-x-6 justify-start">
-        <li><a href="{{ url_for('pages.home') }}" class="text-white hover:text-secondary font-medium transition duration-150 ease-in-out">Beranda</a></li>
-        <li><a href="{{ url_for('pages.analyze') }}" class="text-white hover:text-secondary font-medium transition duration-150 ease-in-out">Analisis Matriks & ML</a></li>
-        <li><a href="{{ url_for('pages.about') }}" class="text-white hover:text-secondary font-medium transition duration-150 ease-in-out">Tentang Proyek</a></li>
-    </ul>
+  <ul class="flex space-x-6 justify-start">
+    <li>
+      <a href="{{ url_for('pages.home') }}"
+         class="font-medium transition duration-150 ease-in-out
+                {% if request.endpoint == 'pages.home' %}
+                    text-yellow-300 border-b-2 border-yellow-300
+                {% else %}
+                    text-white hover:text-yellow-300
+                {% endif %}">
+        Beranda
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('pages.analyze') }}"
+         class="font-medium transition duration-150 ease-in-out
+                {% if request.endpoint == 'pages.analyze' %}
+                    text-yellow-300 border-b-2 border-yellow-300
+                {% else %}
+                    text-white hover:text-yellow-300
+                {% endif %}">
+        Analisis Matriks & ML
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('pages.about') }}"
+         class="font-medium transition duration-150 ease-in-out
+                {% if request.endpoint == 'pages.about' %}
+                    text-yellow-300 border-b-2 border-yellow-300
+                {% else %}
+                    text-white hover:text-yellow-300
+                {% endif %}">
+        Tentang Proyek
+      </a>
+    </li>
+  </ul>
 </nav>
